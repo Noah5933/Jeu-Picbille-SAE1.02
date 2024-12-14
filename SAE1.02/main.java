@@ -49,7 +49,7 @@ class main extends Program{
     vilain.menace = menace;
     return vilain;
    }
-   int[] coJoeur(int[][] tab) { // permet de déterminer les coordonées du joueur
+   int[] coJoeur(int[][] tab) { // permet de déterminer les coordonnées du joueur
     int i = 0;
     int j = 0;
     boolean trouve = false;
@@ -57,31 +57,26 @@ class main extends Program{
         if (tab[i][j] == 1) {
             trouve = true;
         } else {
-            i++;
             j++;
+            if (j==length(tab[2])) {
+                j=0;
+                i++;
+            }
         }
     }
     int[] co = new int[]{i,j};
     return co;
    }
    void deplacerJoueur(int[][] tab, String deplace) { // permet de déplacer le joueur
-    int i = 0;
-    int j = 0;
-    boolean trouve = false;
-    while (trouve == false) {
-        if (tab[i][j] == 1) {
-            trouve = true;
-        } else {
-            i++;
-            j++;
-        }
-    }
+    int[] co=coJoeur(tab);
+    int i=co[0];
+    int j=co[1];
     if (equals(deplace,"haut") || equals(deplace,"Haut")) {
-        tab[i+1][j] = 1;
+        tab[i-1][j] = 1;
         tab[i][j] = 0;
     }
     if (equals(deplace,"bas") || equals(deplace,"Bas")) {
-        tab[i-1][j] = 1;
+        tab[i+1][j] = 1;
         tab[i][j] = 0;
    }
     if (equals(deplace,"gauche") || equals(deplace,"Gauche")) {
@@ -95,14 +90,14 @@ class main extends Program{
    }
    int detecterCase(int[][] tab, String deplace) { // permet de detecter le numero de la case ( ennemie)
     int[] co = coJoeur(tab);
-    int  i = co[1];
-    int j = co[2];
+    int  i = co[0];
+    int j = co[1];
     int chiffre = 0;
     if (equals(deplace,"haut") || equals(deplace,"Haut")) {
-        chiffre = tab[i+1][j];
+        chiffre = tab[i-1][j];
    }
     if (equals(deplace,"bas") || equals(deplace,"Bas")) {
-        chiffre =  tab[i-1][j];
+        chiffre =  tab[i+1][j];
    }
    if (equals(deplace,"droite") || equals(deplace,"Droite")) {
         chiffre =  tab[i][j+1];
@@ -112,24 +107,40 @@ class main extends Program{
    }
    return chiffre;
    }
+   void supprEnnemi(int[][]tab,String deplace){
+        int[] co = coJoeur(tab);
+        int  i = co[0];
+        int j = co[1];
+        if (equals(deplace,"haut") || equals(deplace,"Haut")) {
+            tab[i-1][j]=0;
+        }
+        if (equals(deplace,"bas") || equals(deplace,"Bas")) {
+            tab[i+1][j]=0;
+        }
+        if (equals(deplace,"droite") || equals(deplace,"Droite")) {
+            tab[i][j+1]=0;
+        }
+        if (equals(deplace,"gauche") || equals(deplace,"Gauche")) {
+            tab[i][j-1]=0;
+        }
+   }
     boolean deplacementValide(int[][] tab, String deplace) { // permet de définir les déplacement valide
-            boolean valide = true;
             int[] co = coJoeur(tab);
-            int  i = co[1];
-            int j = co[2];
+            int  i = co[0];
+            int j = co[1];
             if ((equals(deplace,"haut") || equals(deplace,"Haut")) && i == 0) {
-                valide = false;
+                return false;
             }
-            if ((equals(deplace,"bas") || equals(deplace,"Bas")) && i == length(tab,1)) {
-                valide = false;
+            if ((equals(deplace,"bas") || equals(deplace,"Bas")) && i == length(tab,1)-1) {
+                return false;
             }
             if ((equals(deplace,"gauche") || equals(deplace,"Gauche")) && j == 0) {
-                valide = false;
+                return false;
             }
-            if ((equals(deplace,"droite") || equals(deplace,"Droite")) && j == length(tab,2)) {
-                valide = false;
+            if ((equals(deplace,"droite") || equals(deplace,"Droite")) && j == length(tab,2)-1) {
+                return false;
             }
-            return valide;
+            return true;
         }
     String toString(int[][] tab) { // permet d'afficher le tableau sous forme lisible pour les humains
         String tableau = "";
@@ -148,60 +159,84 @@ class main extends Program{
     return tableau;
     }
     void combat(Joueur joueur, Vilain vilain) { // permet de faire un combat entier
+        boolean enCombat=true;
         String[] operation = new String[]{"+","-","*","/"};
         int tour = 1;
         println("Vous avez rencontré un vilain de fléau : " + vilain.menace + "\n" + "Que le combat commence ! ");
-        while(joueur.pv > 0 || vilain.pv > 0) {
-            if ( tour == 1) {
+        while(enCombat) {
+            if (tour == 1) {
                 println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                 println("PV adversaire : " + vilain.pv) ;
                 println(" Que souhaitez-vous faire ?");
                 println(" S : Soin(soigne 10 PV)");
-                println(" A : Attaque(inflige" + joueur.pa +  ")");
+                println(" Entrée : Attaque(inflige" + joueur.pa +  ")");
                 String choix = readString();
-                if (equals(choix,"Soin") || equals(choix,"soin")) {
-                    if (joueur.pv_max < joueur.pv){
-                        joueur.pv += 10;
+                if (equals(choix,"s") || equals(choix,"S")) {
+                    if (joueur.pv_max-20 >= joueur.pv){
+                        joueur.pv += 20;
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                     } else {
                         println ("Le soin à échoué !");
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                     }
-                    } else {
+                } else {
                     int choix_ope = (int) (random()*4);
                     int nb1 = (int) (random()*100);
                     int nb2 = (int) (random()*100);
                     int reponse = 0;
-                println(nb2 + operation[choix_ope] + nb1);
-                if ( choix_ope == 1) {
-                    reponse = nb1+nb2;
-                } else if ( choix_ope == 2) {
-                    if ( nb2 < nb1) {
+                    int reponseUser = 0;
+                    println(nb1 + operation[choix_ope] + nb2);
+                    print("quelle est la réponse ? ");
+                    reponseUser=readInt();
+                    if ( choix_ope == 0) {
+                        reponse = nb1+nb2;
+                    } else if ( choix_ope == 1) {
+                        if ( nb2 < nb1) {
+                            reponse = nb1-nb2;
+                        } else {
                         reponse = nb1-nb2;
+                        }
+                    }else if (choix_ope == 2) {
+                        reponse = nb1*nb2;
                     } else {
-                    reponse = nb1-nb2;
+                        reponse = nb1/nb2;
                     }
-                }else if (choix_ope == 3) {
-                    reponse = nb1*nb2;
-                } else {
-                    reponse = nb1/nb2;
+                    println("La reponse est : " + reponse);
+                    if(reponse==reponseUser){
+                        println("attaque réussie !!");
+                        vilain.pv=vilain.pv-joueur.pa;
+                    }
                 }
-                }
-                tour = 2
+                tour = 2;
             } else {
-                joueur.pv - 10;
+                joueur.pv -= 10;
                 tour = 1;
+            }
+            if(joueur.pv<=0 || vilain.pv<=0){
+                enCombat = false;
             }
         }
     }
     void algorithm() {
         // a terminer
+        String deplacement;
         int[][] tab = new int[10][10];
         tab = initplateau(tab);
         println(toString(tab));
-        Joueur joueur =  new Joueur();
+        Joueur joueur =  newJoueur();
         while ( joueur.pv > 0) {
-            
+            print("entrez une direction valide :");
+            deplacement = readString();
+            if(deplacementValide(tab,deplacement)){
+                if(detecterCase(tab,deplacement)!=0){
+                    Vilain vilain = newVilain(detecterCase(tab,deplacement));
+                    combat(joueur,vilain);
+                    supprEnnemi(tab,deplacement);
+                }
+                deplacerJoueur(tab,deplacement);
+                println(toString(tab));
+            }
         }
+        println("tu as perdu")
     }
 }
