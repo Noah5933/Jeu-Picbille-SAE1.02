@@ -1,7 +1,8 @@
 Picbille contre le Mange-calcul
 ============================== 
 
-Développé par Noah Hoylaerts Mathieu Salomez \n
+Développé par Noah Hoylaerts Mathieu Salomez 
+
 Contacts : noah.hoylaerts.etu@univ-lille.fr mathieu.salomez.etu@univ-lille.fr
 
 # Présentation de Picbille contre le Mange-Calcul 
