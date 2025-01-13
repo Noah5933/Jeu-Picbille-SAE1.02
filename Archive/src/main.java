@@ -14,14 +14,19 @@ class main extends Program{
             #detecterNiveauMenace( enemie representer oar 2 si menace == 1, 3 si menace == 2 etc ...)
         #scriptScenario { a developper apres alpha}
         #levelUp{ a developper si temps}
-        Config difficulté
-        save
+        save ( absolument ;-; tableau + joueur)
         #histoire
-        boss ( sprite)
+        boss ( sprite, menace 6/7, secret : 99999; score superieur sinon grille vide, rajoute nom variable globale)
         equilibre ennemie
         #rajoute fichier lisable
         rajouter boss
-        /histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
+        #histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
+        corriger faute orthographe
+        rendre interface lisible
+        faire des tests
+        rajouter variable globale 
+        verifier pas erreur
+
 
         
         # = implémanté
@@ -33,6 +38,7 @@ class main extends Program{
    final String histoire = "ressources/Histoire.txt";
    final String mauvaise_fin = "ressources/BadEnding.txt";
    String choixFin = "";
+   int potion = 3;
 
 
 
@@ -62,15 +68,15 @@ class main extends Program{
     if (equals(choixFin,"non") || equals(choixFin,"Non")) {
         afficherFichier(mauvaise_fin);
     } else {
-    println(readLine(unTexte));
-    String tmp = readString();
-    println(readLine(unTexte));
-    tmp = readString();
-    println(readLine(unTexte));
-    delay(2500);
-    println(readLine(unTexte));
-    delay(5000);
-    }
+        println(readLine(unTexte));
+        String tmp = readString();
+        println(readLine(unTexte));
+        tmp = readString();
+        println(readLine(unTexte));
+        delay(2500);
+        println(readLine(unTexte));
+        delay(5000);
+        }
 	}
    Joueur newJoueur() { // créer le type joueur
     Joueur joueur = new Joueur();
@@ -78,17 +84,13 @@ class main extends Program{
     joueur.pv_max = 100+15*joueur.lvl;
     joueur.pv = joueur.pv_max;
     joueur.pa = 200+2*joueur.lvl;
-    joueur.pd = 5+2*joueur.lvl;
-    joueur.vit = 10+2*joueur.lvl;
     joueur.xp = 0;
     return joueur;
    }
    Vilain newVilain(int menace) { //  creer le type vilain
     Vilain vilain = new Vilain();
     vilain.pv = 100+30*menace;
-    vilain.pa = 10+10*menace;
-    vilain.pd = 5+5*menace;
-    vilain.vit = 11+4*menace;
+    vilain.pa = 10+5*menace;
     vilain.menace = menace;
     vilain.xp = 10*menace;
     return vilain;
@@ -97,6 +99,7 @@ class main extends Program{
     if (joueur.xp >= 100) {
         joueur.lvl +=1;
         joueur.xp -= 100;
+        println("Bravo ! Tu as gagné un niveau.");
     } 
    }
    int[] coJoeur(int[][] tab) { // permet de déterminer les coordonnées du joueur
@@ -199,7 +202,7 @@ class main extends Program{
                 if ( tab[i][j] == 0) {
                     tableau += ".";
                 }else if (tab[i][j] == 1) {
-                    tableau += "J";
+                    tableau += "J";( si temps mais giga flemme)
                 } else {
                     tableau += "E";
                 }
@@ -215,6 +218,13 @@ class main extends Program{
 			println(readLine(unTexte));
 		}
 	}
+    void heal(Joueur joueur) {
+        joueur.pv += 50+10*joueur.lvl;
+        if ( joueur.pv > joueur.pv_max) {
+            joueur.pv = joueur.pv_max;
+        }
+        potion -= 1;
+    }
     void combat(Joueur joueur, Vilain vilain) { // permet de faire un combat entier
         boolean enCombat=true;
         String[] operation = new String[]{"+","-","*","/"};
@@ -222,18 +232,19 @@ class main extends Program{
         println("Vous avez rencontré un vilain de fléau : " + vilain.menace + "\n" + "Que le combat commence ! ");
         while(enCombat) {
             if (tour == 1) {
+                int soin = 50+10*joueur.lvl;
                 println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                 println("PV adversaire : " + vilain.pv) ;
                 println(" Que souhaitez-vous faire ?");
-                println(" S : Soin(soigne 10 PV)");
+                println(" S : Soin(soigne " + soin + " PV)");
                 println(" Entrée : Attaque(inflige" + joueur.pa +  ")");
                 String choix = readString();
                 if (equals(choix,"s") || equals(choix,"S")) {
-                    if (joueur.pv_max-20 >= joueur.pv){
-                        joueur.pv += 20;
+                    if (potion > 0 ){
+                        heal(joueur);
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                     } else {
-                        println ("Le soin à échoué !");
+                        println ("Le soin à échoué, vous n'avez pas de potions restantes !");
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                     }
                 } else {
@@ -284,8 +295,14 @@ class main extends Program{
         if(joueur.pv > 0 ) {
             joueur.xp += vilain.xp;
             score += 100*vilain.menace;
-            println("Tu as battu le vilain ! Félicitation tu peux continuer ton périlple ! ");
+            println("Tu as battu le vilain ! Félicitation tu peux continuer ton périple ! ");
+            lvl_up(joueur);
             println("Niveau :" + joueur.lvl + "\n" + "Experience : " + joueur.xp);
+            double alea = random();
+            if ( alea > 0.75)  {
+                potion++;
+                println("Vous avez obtenu une potion !");
+            }
         }
     }
     void algorithm() {
@@ -300,7 +317,7 @@ class main extends Program{
             println(toString(tab));
             Joueur joueur =  newJoueur();
             while ( joueur.pv > 0) {
-                print("entrez une direction valide :");
+                print("entrez une direction valide : [Haut/Bas/Gauche/Droite] ");
                 deplacement = readString();
                 if(deplacementValide(tab,deplacement)){
                     if(detecterCase(tab,deplacement)!=0){

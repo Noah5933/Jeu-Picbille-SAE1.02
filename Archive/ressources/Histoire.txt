@@ -1,6 +1,6 @@
 Bonjour Jeune super héros, comment t’appelle-tu ?
 Je m’appelle Picbille et je suis le super héros qui fait des calculs.
-Je sais que c’est ta première mission mais nous avons 1 problème, le mange-calcul s’est échappé de sa prison hier et sème le trouble à Calcul City. Nous devons absolument l’arrêter avant qu’il ne mange tous les habitant de calcul City cependant je ne suis pas assez fort tout seul, veux-tu m’aider jeune super héros ?
+Je sais que c’est ta première mission mais nous avons 1 problème, le mange-calcul s’est échappé de sa prison hier et sème le trouble à Calcul City. Nous devons absolument l’arrêter avant qu’il ne mange tous les habitant de calcul City cependant je ne suis pas assez fort tout seul, veux-tu m’aider jeune super héros ? [Oui/non]
 Bien, commençons par les bases, dit moi ton niveau en calcul :
 Et quel est ta classe alors ?
 Tu est super fort alors !
