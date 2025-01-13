@@ -1,3 +1,5 @@
+import extensions.File;
+
 class main extends Program{
     /* liste des fonctions à implémenter :
         #initplateau 
@@ -16,9 +18,25 @@ class main extends Program{
         save
         histoire
         boss
+        equilibre ennemie
+        rajoute fichier lisable
+        rajouter boss
+        histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
+
         
         # = implémanté
     */
+   String prenom ="";
+   int score = 0;
+   final String picbille = "ressources/Picbille.txt";
+   final String mange_calcul = "ressources/GoudronColor.ans";
+   final String histoire = "ressources/Histoire.txt";
+   final String mauvaise_fin = "ressources/BadEnding.txt";
+   String choixFin = "";
+
+
+
+
    int[][] initplateau (int[][] tab) { //initialise le plateau ( a améliorer)
     for (int  i = 0; i < length(tab,1); i++) {
         for (int  j = 0; j < length(tab, 2); j++) {
@@ -33,12 +51,33 @@ class main extends Program{
     tab[length(tab,1)-1][length(tab,2)/2] = 1;
     return tab;
    }
+   void histoire(String chemin) { //Permet de lancer l'histoire avec les 2 fins differentes
+    File unTexte = newFile(chemin);
+    println(readLine(unTexte));
+    prenom = readString();
+	println(readLine(unTexte));
+    delay(2500);
+    println(readLine(unTexte));
+    String choix = readString();
+    if (equals(choix,"non") || equals(choix,"Non")) {
+        afficherFichier(mauvaise_fin);
+    } else {
+    println(readLine(unTexte));
+    String tmp = readString();
+    println(readLine(unTexte));
+    tmp = readString();
+    println(readLine(unTexte));
+    delay(2500);
+    println(readLine(unTexte));
+    delay(5000);
+    }
+	}
    Joueur newJoueur() { // créer le type joueur
     Joueur joueur = new Joueur();
     joueur.lvl = 0;
     joueur.pv_max = 100+15*joueur.lvl;
     joueur.pv = joueur.pv_max;
-    joueur.pa = 20+2*joueur.lvl;
+    joueur.pa = 200+2*joueur.lvl;
     joueur.pd = 5+2*joueur.lvl;
     joueur.vit = 10+2*joueur.lvl;
     joueur.xp = 0;
@@ -54,7 +93,7 @@ class main extends Program{
     vilain.xp = 10*menace;
     return vilain;
    }
-   void lvl_up(Joueur joueur) {
+   void lvl_up(Joueur joueur) { // Permt de faite augmenter de niveau le joueur
     if (joueur.xp >= 100) {
         joueur.lvl +=1;
         joueur.xp -= 100;
@@ -118,7 +157,7 @@ class main extends Program{
    }
    return chiffre;
    }
-   void supprEnnemi(int[][]tab,String deplace){
+   void supprEnnemi(int[][]tab,String deplace){ // Permet de supprimer un ennemie
         int[] co = coJoeur(tab);
         int  i = co[0];
         int j = co[1];
@@ -167,8 +206,15 @@ class main extends Program{
             }
             tableau += "\n";
         }
+    println("score : " + score );
     return tableau;
     }
+    void afficherFichier(String chemin){ // Permet d'afficher un fichier instantanément
+		File unTexte = newFile(chemin);
+		while(ready(unTexte)){
+			println(readLine(unTexte));
+		}
+	}
     void combat(Joueur joueur, Vilain vilain) { // permet de faire un combat entier
         boolean enCombat=true;
         String[] operation = new String[]{"+","-","*","/"};
@@ -197,12 +243,13 @@ class main extends Program{
                     int reponse = 0;
                     int reponseUser = 0;
                     if ( choix_ope == 1) {
-                        if ( nb2 < nb1) {
-                            println(nb1 + operation[choix_ope] + nb2);
-                        } else {
+                    if ( nb2 < nb1) {
+                        println(nb1 + operation[choix_ope] + nb2);
+                    } else {
                         println(nb2 + operation[choix_ope] + nb1);
                         }
-                    println(nb1 + operation[choix_ope] + nb2);
+                    } else {
+                        println(nb1 + operation[choix_ope] + nb2);
                     }
                     print("quelle est la réponse ? ");
                     reponseUser=readInt();
@@ -227,7 +274,7 @@ class main extends Program{
                 }
                 tour = 2;
             } else {
-                joueur.pv -= 10;
+                joueur.pv -= vilain.pa;
                 tour = 1;
             }
             if(joueur.pv<=0 || vilain.pv<=0){
@@ -236,10 +283,17 @@ class main extends Program{
         }
         if(joueur.pv > 0 ) {
             joueur.xp += vilain.xp;
+            score += 100*vilain.menace;
+            println("Tu as battu le vilain ! Félicitation tu peux continuer ton périlple ! ");
+            println("Niveau :" + joueur.lvl + "\n" + "Experience : " + joueur.xp);
         }
     }
     void algorithm() {
         // a terminer
+
+        afficherFichier(picbille);
+        histoire(histoire);
+        if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
         String deplacement;
         int[][] tab = new int[10][10];
         tab = initplateau(tab);
@@ -259,5 +313,7 @@ class main extends Program{
             }
         }
         println("tu as perdu");
+        afficherFichier(mange_calcul);
+    }
     }
 }
