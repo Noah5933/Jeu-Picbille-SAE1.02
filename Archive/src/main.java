@@ -12,16 +12,16 @@ class main extends Program{
         Les 800 toString ( #tableau, )
         #detecterVilain ( detecter case)
             #detecterNiveauMenace( enemie representer oar 2 si menace == 1, 3 si menace == 2 etc ...)
-        scriptScenario { a developper apres alpha}
-        levelUp{ a developper si temps}
+        #scriptScenario { a developper apres alpha}
+        #levelUp{ a developper si temps}
         Config difficulté
         save
-        histoire
-        boss
+        #histoire
+        boss ( sprite)
         equilibre ennemie
-        rajoute fichier lisable
+        #rajoute fichier lisable
         rajouter boss
-        histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
+        /histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
 
         
         # = implémanté
@@ -58,8 +58,8 @@ class main extends Program{
 	println(readLine(unTexte));
     delay(2500);
     println(readLine(unTexte));
-    String choix = readString();
-    if (equals(choix,"non") || equals(choix,"Non")) {
+    choixFin = readString();
+    if (equals(choixFin,"non") || equals(choixFin,"Non")) {
         afficherFichier(mauvaise_fin);
     } else {
     println(readLine(unTexte));
@@ -294,26 +294,26 @@ class main extends Program{
         afficherFichier(picbille);
         histoire(histoire);
         if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
-        String deplacement;
-        int[][] tab = new int[10][10];
-        tab = initplateau(tab);
-        println(toString(tab));
-        Joueur joueur =  newJoueur();
-        while ( joueur.pv > 0) {
-            print("entrez une direction valide :");
-            deplacement = readString();
-            if(deplacementValide(tab,deplacement)){
-                if(detecterCase(tab,deplacement)!=0){
-                    Vilain vilain = newVilain(detecterCase(tab,deplacement));
-                    combat(joueur,vilain);
-                    supprEnnemi(tab,deplacement);
+            String deplacement;
+            int[][] tab = new int[10][10];
+            tab = initplateau(tab);
+            println(toString(tab));
+            Joueur joueur =  newJoueur();
+            while ( joueur.pv > 0) {
+                print("entrez une direction valide :");
+                deplacement = readString();
+                if(deplacementValide(tab,deplacement)){
+                    if(detecterCase(tab,deplacement)!=0){
+                        Vilain vilain = newVilain(detecterCase(tab,deplacement));
+                        combat(joueur,vilain);
+                        supprEnnemi(tab,deplacement);
+                    }
+                    deplacerJoueur(tab,deplacement);
+                    println(toString(tab));
                 }
-                deplacerJoueur(tab,deplacement);
-                println(toString(tab));
             }
+            println("tu as perdu");
+            afficherFichier(mange_calcul);
         }
-        println("tu as perdu");
-        afficherFichier(mange_calcul);
-    }
     }
 }
