@@ -11,7 +11,7 @@ class main extends Program{
         #newvilain ( representation : 2 et +)
         Les 800 toString ( #tableau, )
         #detecterVilain ( detecter case)
-            #detecterNiveauMenace( enemie representer oar 2 si menace == 1, 3 si menace == 2 etc ...)
+            #detecterNiveauMenace( enemie representer par 2 si menace == 1, 3 si menace == 2 etc ...)
         #scriptScenario { a developper apres alpha}
         #levelUp{ a developper si temps}
         save ( absolument ;-; tableau + joueur)
@@ -24,26 +24,40 @@ class main extends Program{
         corriger faute orthographe
         rendre interface lisible
         faire des tests
-        rajouter variable globale 
+        #rajouter variable globale 
         verifier pas erreur
 
 
         
         # = implémanté
     */
+
+   /* Liste des variables globales utilisé */
    String prenom ="";
    int score = 0;
    final String picbille = "ressources/Picbille.txt";
    final String mange_calcul = "ressources/GoudronColor.ans";
    final String histoire = "ressources/Histoire.txt";
+   final String boo = "ressources/BooColor.ans";
+   final String mini_boss = "ressources/Boss.txt";
+   final String ectoplama = "ressources/BadEnding.txt";
    final String mauvaise_fin = "ressources/BadEnding.txt";
+   final String bosstexte = "ressources/BossTexte.txt";
+   final String booo = "BOOOOOOO";
+   final String ecto = "ECTOPLAMAAAAAAA";
+   final String mange = "LE MANGE-CALCULLLLLL";
+   final String bosss = "...";
    String choixFin = "";
    int potion = 3;
+   int boss1 = 1000;
+   int boss2 = 2500;
+   int boss3 = 3500;
+   int boss_final = 5000;
 
 
 
-
-   int[][] initplateau (int[][] tab) { //initialise le plateau ( a améliorer)
+    /* initialise le plateau*/
+   int[][] initplateau (int[][] tab) { 
     for (int  i = 0; i < length(tab,1); i++) {
         for (int  j = 0; j < length(tab, 2); j++) {
             tab[i][j] = 0;
@@ -57,14 +71,67 @@ class main extends Program{
     tab[length(tab,1)-1][length(tab,2)/2] = 1;
     return tab;
    }
-   void histoire(String chemin) { //Permet de lancer l'histoire avec les 2 fins differentes
+/* Permet de lancer le boss */
+    void lance_boss( String boss, int menace, Joueur joueur, String chemin, String nom_boss) {
+        File unTexte = newFile(chemin); // texte_boss
+        afficherFichier(boss); // ascii art 
+        delay(1000);
+        for( int i = 0; i < 2; i++) {
+            println(readLine(unTexte)); // 2ere ligne boss
+            delay(1000);
+        }
+        delay(1000);
+        println(nom_boss);
+        delay(2500);
+        println(readLine(unTexte));
+        delay(1000);
+        Vilain vilain = newVilain(menace);
+        combat(joueur, vilain);
+    }
+
+   /* Permet de determiner si le tableau est vide sans compter le joueur */
+   boolean tableau_vide(int[][] tab, int score, int boss) { 
+    int i = 0;
+    int j = 0;
+    boolean trouve = false;
+    if ( score >= boss) {
+        return false;
+    } else {
+        while (trouve == false) {
+            if ( i == length(tab,0) && j == length(tab,1)){
+                return false;
+            } else {
+                if (tab[i][j] > 1) {
+                    trouve = true;
+                } else {
+                    j++;
+                    if (j==length(tab[2])) {
+                        j=0;
+                        i++;
+                    }
+                }
+            }
+        }
+    }
+    return trouve;
+    }
+    /* Permet de lancer l'histoire avec les 2 fins differentes */
+   void histoire(String chemin) { 
     File unTexte = newFile(chemin);
     println(readLine(unTexte));
     prenom = readString();
 	println(readLine(unTexte));
     delay(2500);
     println(readLine(unTexte));
-    choixFin = readString();
+    boolean bon = false;
+    while(bon == false) {
+        choixFin = readString();
+        if (equals(choixFin,"Oui") || equals(choixFin,"oui") || equals(choixFin,"non") || equals(choixFin,"Non")) {
+            bon = true;
+        } else {
+            println("Veuillez entrer une valeur valide( Oui,oui/Non,non)");
+        }
+    }
     if (equals(choixFin,"non") || equals(choixFin,"Non")) {
         afficherFichier(mauvaise_fin);
     } else {
@@ -78,7 +145,8 @@ class main extends Program{
         delay(5000);
         }
 	}
-   Joueur newJoueur() { // créer le type joueur
+    /* créer le type joueur */
+   Joueur newJoueur() {  
     Joueur joueur = new Joueur();
     joueur.lvl = 0;
     joueur.pv_max = 100+15*joueur.lvl;
@@ -87,7 +155,8 @@ class main extends Program{
     joueur.xp = 0;
     return joueur;
    }
-   Vilain newVilain(int menace) { //  creer le type vilain
+   /* creer le type vilain */
+   Vilain newVilain(int menace) {   
     Vilain vilain = new Vilain();
     vilain.pv = 100+30*menace;
     vilain.pa = 10+5*menace;
@@ -95,14 +164,16 @@ class main extends Program{
     vilain.xp = 10*menace;
     return vilain;
    }
-   void lvl_up(Joueur joueur) { // Permt de faite augmenter de niveau le joueur
+   /* Permet de faite augmenter de niveau le joueur */
+   void lvl_up(Joueur joueur) {  
     if (joueur.xp >= 100) {
         joueur.lvl +=1;
         joueur.xp -= 100;
         println("Bravo ! Tu as gagné un niveau.");
     } 
    }
-   int[] coJoeur(int[][] tab) { // permet de déterminer les coordonnées du joueur
+   /* permet de déterminer les coordonnées du joueur */
+   int[] coJoeur(int[][] tab) {
     int i = 0;
     int j = 0;
     boolean trouve = false;
@@ -120,7 +191,8 @@ class main extends Program{
     int[] co = new int[]{i,j};
     return co;
    }
-   void deplacerJoueur(int[][] tab, String deplace) { // permet de déplacer le joueur
+   /* permet de déplacer le joueur */
+   void deplacerJoueur(int[][] tab, String deplace) {  
     int[] co=coJoeur(tab);
     int i=co[0];
     int j=co[1];
@@ -141,7 +213,8 @@ class main extends Program{
         tab[i][j] = 0;
    }
    }
-   int detecterCase(int[][] tab, String deplace) { // permet de detecter le numero de la case ( ennemie)
+   /* permet de detecter le numero de la case ( ennemie) */
+   int detecterCase(int[][] tab, String deplace) {  
     int[] co = coJoeur(tab);
     int  i = co[0];
     int j = co[1];
@@ -160,7 +233,8 @@ class main extends Program{
    }
    return chiffre;
    }
-   void supprEnnemi(int[][]tab,String deplace){ // Permet de supprimer un ennemie
+   /* Permet de supprimer un ennemie */
+   void supprEnnemi(int[][]tab,String deplace){  
         int[] co = coJoeur(tab);
         int  i = co[0];
         int j = co[1];
@@ -177,7 +251,8 @@ class main extends Program{
             tab[i][j-1]=0;
         }
    }
-    boolean deplacementValide(int[][] tab, String deplace) { // permet de définir les déplacement valide
+    /* permet de définir les déplacement valide */ 
+    boolean deplacementValide(int[][] tab, String deplace) {
             int[] co = coJoeur(tab);
             int  i = co[0];
             int j = co[1];
@@ -195,14 +270,15 @@ class main extends Program{
             }
             return true;
         }
-    String toString(int[][] tab) { // permet d'afficher le tableau sous forme lisible pour les humains
+   /*  permet d'afficher le tableau sous forme lisible pour les humains */
+     String toString(int[][] tab) {
         String tableau = "";
         for (int  i = 0; i < length(tab,1); i++) {
             for (int  j = 0; j < length(tab, 2); j++) {
                 if ( tab[i][j] == 0) {
                     tableau += ".";
                 }else if (tab[i][j] == 1) {
-                    tableau += "J";( si temps mais giga flemme)
+                    tableau += "J";
                 } else {
                     tableau += "E";
                 }
@@ -212,20 +288,23 @@ class main extends Program{
     println("score : " + score );
     return tableau;
     }
-    void afficherFichier(String chemin){ // Permet d'afficher un fichier instantanément
+    /* Permet d'afficher un fichier instantanément */
+    void afficherFichier(String chemin){ 
 		File unTexte = newFile(chemin);
 		while(ready(unTexte)){
 			println(readLine(unTexte));
 		}
 	}
-    void heal(Joueur joueur) {
+    /* Permet de soigner le joueur */
+    void heal(Joueur joueur) {  
         joueur.pv += 50+10*joueur.lvl;
         if ( joueur.pv > joueur.pv_max) {
             joueur.pv = joueur.pv_max;
         }
         potion -= 1;
     }
-    void combat(Joueur joueur, Vilain vilain) { // permet de faire un combat entier
+    /* permet de faire un combat entier */
+    void combat(Joueur joueur, Vilain vilain) { 
         boolean enCombat=true;
         String[] operation = new String[]{"+","-","*","/"};
         int tour = 1;
@@ -234,18 +313,24 @@ class main extends Program{
             if (tour == 1) {
                 int soin = 50+10*joueur.lvl;
                 println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
+                delay(1000);
                 println("PV adversaire : " + vilain.pv) ;
+                delay(1000);
                 println(" Que souhaitez-vous faire ?");
-                println(" S : Soin(soigne " + soin + " PV)");
-                println(" Entrée : Attaque(inflige" + joueur.pa +  ")");
+                delay(1000);
+                println(" S : Soin(soigne " + soin + " PV) (nombre de potion restantes : " + potion + ")" );
+                delay(1000);
+                println(" Entrée : Attaque(inflige" + joueur.pa + ")");
                 String choix = readString();
                 if (equals(choix,"s") || equals(choix,"S")) {
                     if (potion > 0 ){
                         heal(joueur);
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
+                        delay(1000);
                     } else {
                         println ("Le soin à échoué, vous n'avez pas de potions restantes !");
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
+                        delay(2500);
                     }
                 } else {
                     int choix_ope = (int) (random()*4);
@@ -255,7 +340,7 @@ class main extends Program{
                     int reponseUser = 0;
                     if ( choix_ope == 1) {
                     if ( nb2 < nb1) {
-                        println(nb1 + operation[choix_ope] + nb2);
+                        println(nb1 + operation[choix_ope] + nb2 + " [Prendre la valeur inferieure] ");
                     } else {
                         println(nb2 + operation[choix_ope] + nb1);
                         }
@@ -307,7 +392,6 @@ class main extends Program{
     }
     void algorithm() {
         // a terminer
-
         afficherFichier(picbille);
         histoire(histoire);
         if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
