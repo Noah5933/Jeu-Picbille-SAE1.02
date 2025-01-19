@@ -566,7 +566,7 @@ class main extends Program{
         assertEquals(true, deplacementValide(tab,"droite"));
     }
 
-    /*void algorithm() {
+    void algorithm() {
         afficherFichier(picbille);
         histoire(histoire);
         if(equals(prenom,"BASTUS")){
@@ -612,5 +612,5 @@ class main extends Program{
                 afficherFichier(mange_calcul);
             }
         }
-    }*/
+    }
 }
