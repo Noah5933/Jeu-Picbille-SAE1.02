@@ -27,7 +27,7 @@ class main extends Program{
         faire des tests...
         #rajouter variable globale 
         verifier pas erreur
-        #reset grille + rajouter ennemie ( reapelle initGrille)
+        #reset grille + rajouter ennemi ( reapelle initGrille)
 
 
         
@@ -35,18 +35,21 @@ class main extends Program{
     */
 
    /* Liste des variables globales utilisé */
-   String prenom ="test";
+   String prenom ="default";
    int score = 0;
+   final String saveTab = "ressources/saveTab.csv";
+   final String saveJoueur = "ressources/saveJoueur.csv";
    final String medaille = "ressources/MedailleInfinie.ans";
    final String finVictoire = "ressources/FinVictoire.txt";
    final String picbille = "ressources/Picbille.txt";
-   final String mange_calcul = "ressources/GoudronColor.ans";
+   final String mange_calcul = "ressources/MangeCalcul.ans";
    final String histoire = "ressources/Histoire.txt";
    final String boo = "ressources/BooColor.ans";
    final String mini_boss = "ressources/Boss.txt";
-   final String ectoplama = "ressources/BadEnding.txt";
+   final String ectoplama = "ressources/Ectoplasma.txt";
    final String mauvaise_fin = "ressources/BadEnding.txt";
    final String bosstexte = "ressources/BossTexte.txt";
+   final String bossfinal = "ressources/BossFinal.txt";
    final String finDefaite = "ressources/FinDefaite.txt";
    final String deus = "ressources/Deus.txt";
    final String deusTexte = "ressources/BossSecret.txt";
@@ -60,7 +63,9 @@ class main extends Program{
    int boss2 = 2500;
    int boss3 = 3500;
    int boss_final = 5000;
-   int niveauMonde = 0;
+   Joueur joueur =  newJoueur();
+   int[][] tab = new int[10][10];
+   int niveauMonde = 1;
 
 
 
@@ -71,14 +76,13 @@ class main extends Program{
         for (int  j = 0; j < length(tab, 2); j++) {
             tab[i][j] = 0;
             double alea = random();
-            int menace = (int) (random()*3)+2+niveauMonde;
+            int menace = (int) (random()*2)+2+niveauMonde;
             if ( alea > 0.80)  {
                 tab[i][j] = menace;
             }
         }
     }
     tab[length(tab,1)-1][length(tab,2)/2] = 1;
-    niveauMonde += 1;
     return tab;
    }
 /* Permet de lancer le boss */
@@ -130,7 +134,7 @@ class main extends Program{
 
     /* Permet de save le tableau de jeu */
     void save_tab (int[][] tab, String nomSave) {
-        String[][] tabAsString = new String[length(tab)][10];
+        String[][] tabAsString = new String[length(tab[1])+1][length(tab[2])];
         int i = 0;
         int j = 0;
          for (  i = 0; i < length(tab,1); i++) {
@@ -138,34 +142,32 @@ class main extends Program{
                 tabAsString[i][j] = "" + tab[i][j];
             }
         }
-        tabAsString[i+1][j+1] = "" +niveauMonde;
+        tabAsString[i][0] = "" +niveauMonde;
+        tabAsString[i][1] = "" +score;
         saveCSV(tabAsString, nomSave);
     }
 
     /* Permet de save le type Joueur */
     void save_joueur ( Joueur joueur, String nomSave) {
-        
-        String[][] joueurAsString = new String[1][5];
+        String[][] joueurAsString = new String[1][4];
             joueurAsString[0][0] = "" + joueur.lvl;
-            joueurAsString[0][1] = "" + joueur.pv_max;
-            joueurAsString[0][2] = "" + joueur.pv;
-            joueurAsString[0][3] = "" + joueur.pa;
-            joueurAsString[0][4] = "" + joueur.xp; 
+            joueurAsString[0][1] = "" + joueur.pv;
+            joueurAsString[0][2] = "" + joueur.xp; 
+            joueurAsString[0][3] = "" + potion;
             saveCSV(joueurAsString, nomSave);
     }
 
     Joueur load_joueur ( String chemin) {
-        CSVFile joueurAsString = loadCSVFile(chemin);
+        CSVFile joueurAsString = loadCSV(chemin);
         int lvl = stringToInt(getCell(joueurAsString, 0, 0));
-        int pv_max = stringToInt(getCell(joueurAsString, 0, 1));
-        int pv = stringToInt(getCell(joueurAsString, 0, 2));
-        int pa = stringToInt(getCell(joueurAsString, 0, 3));
-        int xp = stringToInt(getCell(joueurAsString, 0, 4));
-        return newJoueurSave(lvl, pv_max, pv, pa, xp);
+        int pv = stringToInt(getCell(joueurAsString, 0, 1));
+        int xp = stringToInt(getCell(joueurAsString, 0, 2));
+        potion = stringToInt(getCell(joueurAsString, 0, 3));
+        return newJoueurSave(lvl, pv, xp);
     }
 
     int[][] load_tab ( String chemin, int[][] tab) {
-        CSVFile tabAsString = loadCSVFile(chemin);
+        CSVFile tabAsString = loadCSV(chemin);
         int i = 0;
         int j = 0;
          for (  i = 0; i < 10; i++) {
@@ -173,18 +175,16 @@ class main extends Program{
                 tab[i][j] = stringToInt(getCell(tabAsString, i, j));
             }
         }
-        niveauMonde = stringToInt(getCell(tabAsString, i+1, j+1));
+        niveauMonde = stringToInt(getCell(tabAsString, i,0));
+        score = stringToInt(getCell(tabAsString, i,1));
         return tab;
     }
 
    /* Permet de determiner si le tableau est vide sans compter le joueur */
-   boolean tableau_vide(int[][] tab, int score, int boss) { 
+   boolean tableau_vide(int[][] tab){ 
     int i = 0;
     int j = 0;
     boolean trouve = false;
-    if ( score >= boss) {
-        return false;
-    } else {
         while (trouve == false) {
             if ( i == length(tab,0) && j == length(tab,1)){
                 return false;
@@ -200,9 +200,9 @@ class main extends Program{
                 }
             }
         }
-    }
     return trouve;
     }
+
     /* Permet de lancer l'histoire avec les 2 fins differentes */
    void histoire(String chemin) { 
     File unTexte = newFile(chemin);
@@ -234,12 +234,12 @@ class main extends Program{
         }
 	}
 
-    Joueur newJoueurSave(int lvl, int pv_max, int pv, int pa , int xp) {  
+    Joueur newJoueurSave(int lvl, int pv, int xp) {  
         Joueur joueur = new Joueur();
         joueur.lvl = lvl;
-        joueur.pv_max = lvl;
+        joueur.pv_max = 100+15*joueur.lvl;
         joueur.pv = pv;
-        joueur.pa = pa;
+        joueur.pa = 200+2*joueur.lvl;
         joueur.xp = xp;
     return joueur;
    }
@@ -268,6 +268,9 @@ class main extends Program{
    void lvl_up(Joueur joueur) {  
     if (joueur.xp >= 100) {
         joueur.lvl +=1;
+        joueur.pv_max = joueur.pv_max + 20;
+        joueur.pv = joueur.pv_max;
+        joueur.pa = joueur.pa + 20;
         joueur.xp -= 100;
         println("Bravo ! Tu as gagné un niveau.");
     } 
@@ -303,19 +306,23 @@ class main extends Program{
     if (equals(deplace,"bas") || equals(deplace,"Bas")) {
         tab[i+1][j] = 1;
         tab[i][j] = 0;
-   }
+    }
     if (equals(deplace,"gauche") || equals(deplace,"Gauche")) {
         tab[i][j-1] = 1;
         tab[i][j] = 0;
-   }
+    }
     if (equals(deplace,"droite") || equals(deplace,"Droite")) {
         tab[i][j+1] = 1;
         tab[i][j] = 0;
-   }
-   /* if (equals(deplace,"save") || equals(deplace,"Save")) {
-        save_tab()
-        save_joueur()
-   } */
+    }
+    if (equals(deplace,"save") || equals(deplace,"Save")) {
+        save_tab(tab,saveTab);
+        save_joueur(joueur, saveJoueur);
+    } 
+    if (equals(deplace,"load") || equals(deplace,"Load")) {
+        tab = load_tab(saveTab,tab);
+        joueur = load_joueur(saveJoueur);
+    }
    }
    /* permet de detecter le numero de la case ( ennemie) */
    int detecterCase(int[][] tab, String deplace) {  
@@ -389,7 +396,7 @@ class main extends Program{
             }
             tableau += "\n";
         }
-    println("score : " + score );
+    println("score : " + score + ", monde " + niveauMonde);
     return tableau;
     }
     /* Permet d'afficher un fichier instantanément */
@@ -500,25 +507,38 @@ class main extends Program{
         histoire(histoire);
         if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
             String deplacement;
-            int[][] tab = new int[10][10];
             tab = initplateau(tab);
             println(toString(tab));
-            Joueur joueur =  newJoueur();
             while ( joueur.pv > 0) {
-                print("entrez une direction valide : [Haut/Bas/Gauche/Droite] ");
+                print("entrez une instruction valide : [Haut/Bas/Gauche/Droite/Load/Save] ");
                 deplacement = readString();
                 if(deplacementValide(tab,deplacement) == false){
                     println("Ceci n'est pas un déplacement valide, veuillez réessayez !");
                     delay(1000);
-                }else { if(deplacementValide(tab,deplacement)){
+                }else if(deplacementValide(tab,deplacement)){
                     if(detecterCase(tab,deplacement)!=0){
                         Vilain vilain = newVilain(detecterCase(tab,deplacement));
                         combat(joueur,vilain);
                         supprEnnemi(tab,deplacement);
+                        if(score>=boss1 && niveauMonde==1){
+                          lance_boss(boo, 6, joueur, bosstexte, booo);
+                          niveauMonde += 1;
+                          initplateau(tab);
+                        } else if(score>=boss2 && niveauMonde==2){
+                          lance_boss(ectoplama, 8, joueur, bosstexte, ecto);
+                          niveauMonde += 1;
+                          initplateau(tab);
+                        } else if(score>=boss3 && niveauMonde==3){
+                          lance_boss(mini_boss, 10, joueur, bosstexte, bosss);
+                          niveauMonde += 1;
+                          initplateau(tab);
+                        } else if(score>=boss_final && niveauMonde==4){
+                          lance_boss(mange_calcul, 15, joueur, bossfinal, mange);
+                          niveauMonde += 1;
+                        }
                     }
                     deplacerJoueur(tab,deplacement);
                     println(toString(tab));
-                    }
                 }
             }
             println("tu as perdu");
