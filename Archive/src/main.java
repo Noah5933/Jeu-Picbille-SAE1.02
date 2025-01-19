@@ -1,4 +1,5 @@
 import extensions.File;
+import extensions.CSVFile;
 
 class main extends Program{
     /* liste des fonctions à implémenter :
@@ -14,18 +15,19 @@ class main extends Program{
             #detecterNiveauMenace( enemie representer par 2 si menace == 1, 3 si menace == 2 etc ...)
         #scriptScenario { a developper apres alpha}
         #levelUp{ a developper si temps}
-        save ( absolument ;-; tableau + joueur)
+        #save ( absolument ;-; tableau + joueur)
         #histoire
         boss ( sprite, menace 6/7, secret : 99999; score superieur sinon grille vide, rajoute nom variable globale)
         equilibre ennemie
         #rajoute fichier lisable
         rajouter boss
         #histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
-        corriger faute orthographe
-        rendre interface lisible
-        faire des tests
+        #corriger faute orthographe
+        rendre interface lisible ( upgrade mais a voir avec d'autre testeur)
+        faire des tests...
         #rajouter variable globale 
         verifier pas erreur
+        #reset grille + rajouter ennemie ( reapelle initGrille)
 
 
         
@@ -33,8 +35,10 @@ class main extends Program{
     */
 
    /* Liste des variables globales utilisé */
-   String prenom ="";
+   String prenom ="test";
    int score = 0;
+   final String medaille = "ressources/MedailleInfinie.ans";
+   final String finVictoire = "ressources/FinVictoire.txt";
    final String picbille = "ressources/Picbille.txt";
    final String mange_calcul = "ressources/GoudronColor.ans";
    final String histoire = "ressources/Histoire.txt";
@@ -43,6 +47,9 @@ class main extends Program{
    final String ectoplama = "ressources/BadEnding.txt";
    final String mauvaise_fin = "ressources/BadEnding.txt";
    final String bosstexte = "ressources/BossTexte.txt";
+   final String finDefaite = "ressources/FinDefaite.txt";
+   final String deus = "ressources/Deus.txt";
+   final String deusTexte = "ressources/BossSecret.txt";
    final String booo = "BOOOOOOO";
    final String ecto = "ECTOPLAMAAAAAAA";
    final String mange = "LE MANGE-CALCULLLLLL";
@@ -53,6 +60,8 @@ class main extends Program{
    int boss2 = 2500;
    int boss3 = 3500;
    int boss_final = 5000;
+   int niveauMonde = 0;
+
 
 
 
@@ -62,13 +71,14 @@ class main extends Program{
         for (int  j = 0; j < length(tab, 2); j++) {
             tab[i][j] = 0;
             double alea = random();
-            int menace = (int) (random()*3)+2;
+            int menace = (int) (random()*3)+2+niveauMonde;
             if ( alea > 0.80)  {
                 tab[i][j] = menace;
             }
         }
     }
     tab[length(tab,1)-1][length(tab,2)/2] = 1;
+    niveauMonde += 1;
     return tab;
    }
 /* Permet de lancer le boss */
@@ -87,6 +97,84 @@ class main extends Program{
         delay(1000);
         Vilain vilain = newVilain(menace);
         combat(joueur, vilain);
+    }
+
+    void finDefaite( String chemin) {
+        afficherFichier(mange_calcul);
+        File unTexte = newFile(chemin);
+		while(ready(unTexte)){
+			println(readLine(unTexte));
+            delay(2500);
+		}
+    }
+
+    void bonneFin ( String chemin) {
+        File unTexte = newFile(chemin);
+        println(readLine(unTexte));
+        delay(1000);
+        println(readLine(unTexte));
+        delay(1000);
+        print(readLine(unTexte));
+        println(prenom);
+        delay(1000);
+        println(readLine(unTexte));
+        delay(2500);
+        println(readLine(unTexte));
+        delay(4000);
+        println(readLine(unTexte));
+        delay(4000);
+        println(readLine(unTexte));
+        delay(4000);
+        afficherFichier(medaille);
+    }
+
+    /* Permet de save le tableau de jeu */
+    void save_tab (int[][] tab, String nomSave) {
+        String[][] tabAsString = new String[length(tab)][10];
+        int i = 0;
+        int j = 0;
+         for (  i = 0; i < length(tab,1); i++) {
+            for (  j = 0; j < length(tab, 2); j++) {
+                tabAsString[i][j] = "" + tab[i][j];
+            }
+        }
+        tabAsString[i+1][j+1] = "" +niveauMonde;
+        saveCSV(tabAsString, nomSave);
+    }
+
+    /* Permet de save le type Joueur */
+    void save_joueur ( Joueur joueur, String nomSave) {
+        
+        String[][] joueurAsString = new String[1][5];
+            joueurAsString[0][0] = "" + joueur.lvl;
+            joueurAsString[0][1] = "" + joueur.pv_max;
+            joueurAsString[0][2] = "" + joueur.pv;
+            joueurAsString[0][3] = "" + joueur.pa;
+            joueurAsString[0][4] = "" + joueur.xp; 
+            saveCSV(joueurAsString, nomSave);
+    }
+
+    Joueur load_joueur ( String chemin) {
+        CSVFile joueurAsString = loadCSVFile(chemin);
+        int lvl = stringToInt(getCell(joueurAsString, 0, 0));
+        int pv_max = stringToInt(getCell(joueurAsString, 0, 1));
+        int pv = stringToInt(getCell(joueurAsString, 0, 2));
+        int pa = stringToInt(getCell(joueurAsString, 0, 3));
+        int xp = stringToInt(getCell(joueurAsString, 0, 4));
+        return newJoueurSave(lvl, pv_max, pv, pa, xp);
+    }
+
+    int[][] load_tab ( String chemin, int[][] tab) {
+        CSVFile tabAsString = loadCSVFile(chemin);
+        int i = 0;
+        int j = 0;
+         for (  i = 0; i < 10; i++) {
+            for (  j = 0; j < 10; j++) {
+                tab[i][j] = stringToInt(getCell(tabAsString, i, j));
+            }
+        }
+        niveauMonde = stringToInt(getCell(tabAsString, i+1, j+1));
+        return tab;
     }
 
    /* Permet de determiner si le tableau est vide sans compter le joueur */
@@ -145,6 +233,18 @@ class main extends Program{
         delay(5000);
         }
 	}
+
+    Joueur newJoueurSave(int lvl, int pv_max, int pv, int pa , int xp) {  
+        Joueur joueur = new Joueur();
+        joueur.lvl = lvl;
+        joueur.pv_max = lvl;
+        joueur.pv = pv;
+        joueur.pa = pa;
+        joueur.xp = xp;
+    return joueur;
+   }
+
+
     /* créer le type joueur */
    Joueur newJoueur() {  
     Joueur joueur = new Joueur();
@@ -212,6 +312,10 @@ class main extends Program{
         tab[i][j+1] = 1;
         tab[i][j] = 0;
    }
+   /* if (equals(deplace,"save") || equals(deplace,"Save")) {
+        save_tab()
+        save_joueur()
+   } */
    }
    /* permet de detecter le numero de la case ( ennemie) */
    int detecterCase(int[][] tab, String deplace) {  
@@ -403,7 +507,10 @@ class main extends Program{
             while ( joueur.pv > 0) {
                 print("entrez une direction valide : [Haut/Bas/Gauche/Droite] ");
                 deplacement = readString();
-                if(deplacementValide(tab,deplacement)){
+                if(deplacementValide(tab,deplacement) == false){
+                    println("Ceci n'est pas un déplacement valide, veuillez réessayez !");
+                    delay(1000);
+                }else { if(deplacementValide(tab,deplacement)){
                     if(detecterCase(tab,deplacement)!=0){
                         Vilain vilain = newVilain(detecterCase(tab,deplacement));
                         combat(joueur,vilain);
@@ -411,6 +518,7 @@ class main extends Program{
                     }
                     deplacerJoueur(tab,deplacement);
                     println(toString(tab));
+                    }
                 }
             }
             println("tu as perdu");
