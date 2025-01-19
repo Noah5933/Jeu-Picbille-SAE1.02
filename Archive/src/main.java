@@ -4,23 +4,22 @@ import extensions.CSVFile;
 class main extends Program{
     /* liste des fonctions à implémenter :
         #initplateau 
-            actualiserPlateau(main)
         #déplacerJoueur ( haut,bas, gauche, droite)
             #deplacementValide
         #combat
         #newjoueur ( representation : 1)
         #newvilain ( representation : 2 et +)
-        Les 800 toString ( #tableau, )
+        Les toString ( #tableau, )
         #detecterVilain ( detecter case)
             #detecterNiveauMenace( enemie representer par 2 si menace == 1, 3 si menace == 2 etc ...)
         #scriptScenario { a developper apres alpha}
         #levelUp{ a developper si temps}
         #save ( absolument ;-; tableau + joueur)
         #histoire
-        boss ( sprite, menace 6/7, secret : 99999; score superieur sinon grille vide, rajoute nom variable globale)
+        #boss ( sprite, menace 6/7, secret : 999; score superieur sinon grille vide, rajoute nom variable globale)
         equilibre ennemie
         #rajoute fichier lisable
-        rajouter boss
+        #rajouter boss
         #histoire qui lit l'histoire ligne par ligne tout en implementant la variable nom et les reponse du joueur
         #corriger faute orthographe
         rendre interface lisible ( upgrade mais a voir avec d'autre testeur)
@@ -59,13 +58,14 @@ class main extends Program{
    final String bosss = "...";
    String choixFin = "";
    int potion = 3;
-   int boss1 = 1000;
-   int boss2 = 2500;
-   int boss3 = 3500;
-   int boss_final = 5000;
+   int boss1 = 2500;
+   int boss2 = 5000;
+   int boss3 = 7500;
+   int boss_final = 10000;
    Joueur joueur =  newJoueur();
    int[][] tab = new int[10][10];
    int niveauMonde = 1;
+   boolean actionAnnulee = false;
 
 
 
@@ -86,7 +86,7 @@ class main extends Program{
     return tab;
    }
 /* Permet de lancer le boss */
-    void lance_boss( String boss, int menace, Joueur joueur, String chemin, String nom_boss) {
+    void lance_boss( String boss, int menace, String chemin, String nom_boss) {
         File unTexte = newFile(chemin); // texte_boss
         afficherFichier(boss); // ascii art 
         delay(1000);
@@ -100,7 +100,7 @@ class main extends Program{
         println(readLine(unTexte));
         delay(1000);
         Vilain vilain = newVilain(menace);
-        combat(joueur, vilain);
+        combat( vilain);
     }
 
     void finDefaite( String chemin) {
@@ -132,6 +132,16 @@ class main extends Program{
         afficherFichier(medaille);
     }
 
+    void scriptSecret( String chemin) {
+        File unTexte = newFile(chemin);
+			println(readLine(unTexte));
+            delay(2500);
+            println(readLine(unTexte));
+            delay(2500);
+            println(readLine(unTexte));
+            delay(2500);
+    }
+
     /* Permet de save le tableau de jeu */
     void save_tab (int[][] tab, String nomSave) {
         String[][] tabAsString = new String[length(tab[1])+1][length(tab[2])];
@@ -148,7 +158,7 @@ class main extends Program{
     }
 
     /* Permet de save le type Joueur */
-    void save_joueur ( Joueur joueur, String nomSave) {
+    void save_joueur (String nomSave) {
         String[][] joueurAsString = new String[1][4];
             joueurAsString[0][0] = "" + joueur.lvl;
             joueurAsString[0][1] = "" + joueur.pv;
@@ -203,6 +213,29 @@ class main extends Program{
     return trouve;
     }
 
+    void verifBoss(){
+        if(score>=boss1 && niveauMonde==1){
+            lance_boss(boo, 6, bosstexte, booo);
+            niveauMonde += 1;
+            actionAnnulee = true;
+            initplateau(tab);
+        } else if(score>=boss2 && niveauMonde==2){
+            lance_boss(ectoplama, 8, bosstexte, ecto);
+            niveauMonde += 1;
+            actionAnnulee = true;
+            initplateau(tab);
+        } else if(score>=boss3 && niveauMonde==3){
+            lance_boss(mini_boss, 10, bosstexte, bosss);
+            niveauMonde += 1;
+            actionAnnulee = true;
+            initplateau(tab);
+        } else if(score>=boss_final && niveauMonde==4){
+            lance_boss(mange_calcul, 15, bossfinal, mange);
+            niveauMonde += 1;
+            actionAnnulee = true;
+        }
+    }
+
     /* Permet de lancer l'histoire avec les 2 fins differentes */
    void histoire(String chemin) { 
     File unTexte = newFile(chemin);
@@ -237,9 +270,9 @@ class main extends Program{
     Joueur newJoueurSave(int lvl, int pv, int xp) {  
         Joueur joueur = new Joueur();
         joueur.lvl = lvl;
-        joueur.pv_max = 100+15*joueur.lvl;
+        joueur.pv_max = 100+20*joueur.lvl;
         joueur.pv = pv;
-        joueur.pa = 200+2*joueur.lvl;
+        joueur.pa = 50+20*joueur.lvl;
         joueur.xp = xp;
     return joueur;
    }
@@ -249,23 +282,23 @@ class main extends Program{
    Joueur newJoueur() {  
     Joueur joueur = new Joueur();
     joueur.lvl = 0;
-    joueur.pv_max = 100+15*joueur.lvl;
+    joueur.pv_max = 100;
     joueur.pv = joueur.pv_max;
-    joueur.pa = 200+2*joueur.lvl;
+    joueur.pa = 50;
     joueur.xp = 0;
     return joueur;
    }
    /* creer le type vilain */
    Vilain newVilain(int menace) {   
     Vilain vilain = new Vilain();
-    vilain.pv = 100+30*menace;
-    vilain.pa = 10+5*menace;
+    vilain.pv = 100+20*menace;
+    vilain.pa = 3*menace;
     vilain.menace = menace;
     vilain.xp = 10*menace;
     return vilain;
    }
    /* Permet de faite augmenter de niveau le joueur */
-   void lvl_up(Joueur joueur) {  
+   void lvl_up() {  
     if (joueur.xp >= 100) {
         joueur.lvl +=1;
         joueur.pv_max = joueur.pv_max + 20;
@@ -295,7 +328,7 @@ class main extends Program{
     return co;
    }
    /* permet de déplacer le joueur */
-   void deplacerJoueur(int[][] tab, String deplace) {  
+   void actionJoueur(int[][] tab, String deplace) {  
     int[] co=coJoeur(tab);
     int i=co[0];
     int j=co[1];
@@ -317,7 +350,7 @@ class main extends Program{
     }
     if (equals(deplace,"save") || equals(deplace,"Save")) {
         save_tab(tab,saveTab);
-        save_joueur(joueur, saveJoueur);
+        save_joueur( saveJoueur);
     } 
     if (equals(deplace,"load") || equals(deplace,"Load")) {
         tab = load_tab(saveTab,tab);
@@ -407,7 +440,7 @@ class main extends Program{
 		}
 	}
     /* Permet de soigner le joueur */
-    void heal(Joueur joueur) {  
+    void heal() {  
         joueur.pv += 50+10*joueur.lvl;
         if ( joueur.pv > joueur.pv_max) {
             joueur.pv = joueur.pv_max;
@@ -415,7 +448,7 @@ class main extends Program{
         potion -= 1;
     }
     /* permet de faire un combat entier */
-    void combat(Joueur joueur, Vilain vilain) { 
+    void combat( Vilain vilain) { 
         boolean enCombat=true;
         String[] operation = new String[]{"+","-","*","/"};
         int tour = 1;
@@ -435,7 +468,7 @@ class main extends Program{
                 String choix = readString();
                 if (equals(choix,"s") || equals(choix,"S")) {
                     if (potion > 0 ){
-                        heal(joueur);
+                        heal();
                         println("PV maximum/PV actuelle : " + joueur.pv_max + "/" +joueur.pv);
                         delay(1000);
                     } else {
@@ -491,8 +524,8 @@ class main extends Program{
         if(joueur.pv > 0 ) {
             joueur.xp += vilain.xp;
             score += 100*vilain.menace;
-            println("Tu as battu le vilain ! Félicitation tu peux continuer ton périple ! ");
-            lvl_up(joueur);
+            println("Tu as battu le vilain ! Félicitations tu peux continuer ton périple ! ");
+            lvl_up();
             println("Niveau :" + joueur.lvl + "\n" + "Experience : " + joueur.xp);
             double alea = random();
             if ( alea > 0.75)  {
@@ -502,14 +535,20 @@ class main extends Program{
         }
     }
     void algorithm() {
-        // a terminer
         afficherFichier(picbille);
         histoire(histoire);
-        if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
+        if(equals(prenom,"BASTUS")){
+            joueur = load_joueur(saveJoueur);
+            scriptSecret(deusTexte);
+            afficherFichier(deus);
+            Vilain deusBastus = newVilain(999);
+            combat(deusBastus);
+            println("Bastus a gagné ! Il gagne toujours !");
+        }else if (equals(choixFin,"oui") || equals(choixFin,"Oui")) {
             String deplacement;
             tab = initplateau(tab);
             println(toString(tab));
-            while ( joueur.pv > 0) {
+            while ( joueur.pv > 0 && niveauMonde<5) {
                 print("entrez une instruction valide : [Haut/Bas/Gauche/Droite/Load/Save] ");
                 deplacement = readString();
                 if(deplacementValide(tab,deplacement) == false){
@@ -518,31 +557,24 @@ class main extends Program{
                 }else if(deplacementValide(tab,deplacement)){
                     if(detecterCase(tab,deplacement)!=0){
                         Vilain vilain = newVilain(detecterCase(tab,deplacement));
-                        combat(joueur,vilain);
+                        combat(vilain);
                         supprEnnemi(tab,deplacement);
-                        if(score>=boss1 && niveauMonde==1){
-                          lance_boss(boo, 6, joueur, bosstexte, booo);
-                          niveauMonde += 1;
-                          initplateau(tab);
-                        } else if(score>=boss2 && niveauMonde==2){
-                          lance_boss(ectoplama, 8, joueur, bosstexte, ecto);
-                          niveauMonde += 1;
-                          initplateau(tab);
-                        } else if(score>=boss3 && niveauMonde==3){
-                          lance_boss(mini_boss, 10, joueur, bosstexte, bosss);
-                          niveauMonde += 1;
-                          initplateau(tab);
-                        } else if(score>=boss_final && niveauMonde==4){
-                          lance_boss(mange_calcul, 15, joueur, bossfinal, mange);
-                          niveauMonde += 1;
-                        }
+                        verifBoss();
                     }
-                    deplacerJoueur(tab,deplacement);
+                    if (actionAnnulee == false){
+                     actionJoueur(tab,deplacement);
+                    } else {
+                        actionAnnulee = true;
+                    }
                     println(toString(tab));
                 }
             }
-            println("tu as perdu");
-            afficherFichier(mange_calcul);
+            if(niveauMonde==5 && joueur.pv > 0){
+                bonneFin(finVictoire);
+            } else if(niveauMonde==5 && joueur.pv <= 0){
+                println("tu as perdu");
+                afficherFichier(mange_calcul);
+            }
         }
     }
 }
