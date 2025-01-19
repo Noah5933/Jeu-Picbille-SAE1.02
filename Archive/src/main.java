@@ -196,7 +196,7 @@ class main extends Program{
     int j = 0;
     boolean trouve = false;
         while (trouve == false) {
-            if ( i == length(tab,0) && j == length(tab,1)){
+            if ( i == length(tab[1])-1 && j == length(tab[2])-1){
                 return false;
             } else {
                 if (tab[i][j] > 1) {
@@ -327,7 +327,7 @@ class main extends Program{
     int[] co = new int[]{i,j};
     return co;
    }
-   /* permet de déplacer le joueur */
+   /* permet au joueur de faire l'action demandée */
    void actionJoueur(int[][] tab, String deplace) {  
     int[] co=coJoeur(tab);
     int i=co[0];
@@ -534,7 +534,39 @@ class main extends Program{
             }
         }
     }
-    void algorithm() {
+    void testHeal(){
+        joueur.pv = 50;
+        heal();
+        assertEquals(100,joueur.pv);
+        joueur.pv = 40;
+        joueur.lvl = 1;
+        heal();
+        assertEquals(100,joueur.pv);
+        joueur.pv = 40;
+        joueur.lvl = 2;
+        heal();
+        assertEquals(100,joueur.pv);
+    }
+    void testTableauVide(){
+        tab = initplateau(tab);
+        assertEquals(true,tableau_vide(tab));
+        int [][]tab2 = new int[10][10];
+        for(int i=0; i<length(tab2[1])-1; i++){
+            for(int j=0; j<length(tab2[2])-1; j++){
+                tab[i][j] = 0;
+            }
+        }
+        assertEquals(false,tableau_vide(tab2));
+    }
+    void testDeplacementValide(){
+        tab = initplateau(tab);
+        assertEquals(false, deplacementValide(tab,"bas")); /*le joueur est initialisé tout en bas donc il ne peut pas aller en bas */
+        assertEquals(true, deplacementValide(tab,"haut"));
+        assertEquals(true, deplacementValide(tab,"Gauche"));
+        assertEquals(true, deplacementValide(tab,"droite"));
+    }
+
+    /*void algorithm() {
         afficherFichier(picbille);
         histoire(histoire);
         if(equals(prenom,"BASTUS")){
@@ -555,6 +587,10 @@ class main extends Program{
                     println("Ceci n'est pas un déplacement valide, veuillez réessayez !");
                     delay(1000);
                 }else if(deplacementValide(tab,deplacement)){
+                    if(!tableau_vide(tab)){
+                        initplateau(tab);
+                        actionAnnulee = true;
+                    }
                     if(detecterCase(tab,deplacement)!=0){
                         Vilain vilain = newVilain(detecterCase(tab,deplacement));
                         combat(vilain);
@@ -564,7 +600,7 @@ class main extends Program{
                     if (actionAnnulee == false){
                      actionJoueur(tab,deplacement);
                     } else {
-                        actionAnnulee = true;
+                        actionAnnulee = false;
                     }
                     println(toString(tab));
                 }
@@ -576,5 +612,5 @@ class main extends Program{
                 afficherFichier(mange_calcul);
             }
         }
-    }
+    }*/
 }
